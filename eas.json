@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 15.0.9",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "build-and-maestro-test": {
+      "withoutCredentials": true,
+      "config": "build-and-maestro-test.yml",
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      },
+      "ios": {
+        "simulator": true,
+        "image": "latest"
+      }
+    },
+    "build-ios-maestro": {
+      "withoutCredentials": true,
+      "config": "build-ios.yaml",
+      "ios": {
+        "simulator": true,
+        "image": "latest"
+      }
+    }
+  }
+}

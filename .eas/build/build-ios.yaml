@@ -1,0 +1,34 @@
+build:
+  name: Build and test (iOS, expanded)
+  steps:
+    - eas/build
+    - eas/install_maestro
+    - eas/start_ios_simulator
+    - run:
+        command: |
+          # shopt -s nullglob is necessary not to try to install
+          # SEARCH_PATH literally if there are no matching files.
+          shopt -s nullglob
+
+          SEARCH_PATH="ios/build/Build/Products/*simulator/*.app"
+          FILES_FOUND=false
+
+          for APP_PATH in $SEARCH_PATH; do
+            FILES_FOUND=true
+            echo "Installing \"$APP_PATH\""
+            xcrun simctl install booted "$APP_PATH"
+          done
+
+          if ! $FILES_FOUND; then
+            echo "No files found matching \"$SEARCH_PATH\". Are you sure you've built a Simulator app?"
+            exit 1
+          fi
+    - run:
+        command: |
+          maestro test --include-tags=smoke maestro/
+    - eas/upload_artifact:
+        name: Upload test artifact
+        if: ${ always() }
+        inputs:
+          type: build-artifact
+          path: ${ eas.env.HOME }/.maestro/tests
