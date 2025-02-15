@@ -1,0 +1,50 @@
+name: E2E
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types:
+      - completed
+
+jobs:
+  ios_e2e:
+    name: iOS
+    runs-on: macos-12
+
+    if: ${{ github.event.workflow_run.conclusion == 'success'}}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Installing Maestro
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash # will use `MAESTRO_VERSION` from env
+
+      - name: Installing Maestro dependencies
+        run: |
+          brew tap facebook/fb
+          brew install facebook/fb/idb-companion
+
+      - name: Install node_modules
+        run: npm install
+
+      - name: Install Pods
+        working-directory: ios
+        run: pod install
+
+      - name: Build app for simulator
+        working-directory: ios
+        env:
+          DERIVED_DATA_PATH: "ios/build/Build/Products/Release-iphonesimulator/iweather.app"
+        run: |
+          xcrun xcodebuild \
+            -scheme "Myapp" \
+            -workspace "Myapp.xcworkspace" \
+            -configuration "Release" \
+            -sdk "iphonesimulator" \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath "${{ env.DERIVED_DATA_PATH }}"
+
+          echo "Print path to *.app file"
+          find "${{ env.DERIVED_DATA_PATH }}" -type d -name "*.app"
+      # ^^^ Path to *.app file (based on derivedDataPath + working-directory):
+      # ./ios/my_build/Build/Products/Release-iphonesimulator/Myapp.app
