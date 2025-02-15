@@ -62,4 +62,4 @@ jobs:
           xcrun simctl install booted "${{ env.APP_PATH }}"
 
           echo "Running tests with Maestro"
-          maestro test --include-tags=smoke maestro/ --format junit
+          $HOME/.maestro/bin/maestro test --include-tags=smoke maestro/ --format junit
