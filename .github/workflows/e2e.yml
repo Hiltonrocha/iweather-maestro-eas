@@ -7,6 +7,8 @@ on:
       - completed
 env:
   MAESTRO_VERSION: 1.39.13
+  MAESTRO_CLI_NO_ANALYTICS: true
+  MAESTRO_DRIVER_STARTUP_TIMEOUT: 500000
 
 jobs:
   ios_e2e:
@@ -60,4 +62,4 @@ jobs:
           xcrun simctl install booted "${{ env.APP_PATH }}"
 
           echo "Running tests with Maestro"
-          $HOME/.maestro/bin/maestro test --include-tags=smoke maestro/ --format junit
+          maestro test --include-tags=smoke maestro/ --format junit
