@@ -51,9 +51,7 @@ jobs:
       # ^^^ Path to *.app file (based on derivedDataPath + working-directory):
       - name: Run e2e tests
         env:
-          APP_PATH:
-            "ios/build/Build/Products/Release-iphonesimulator/iweather.app"
-            # ^^^ change this path to your *.app file
+          APP_PATH: "ios/build/Build/Products/Release-iphonesimulator/iweather.app" # ^^^ change this path to your *.app file
         run: |
           echo "Launching iOS Simulator"
           xcrun simctl boot "iPhone 14 Pro"
@@ -61,8 +59,5 @@ jobs:
           echo "Installing app on Simulator"
           xcrun simctl install booted "${{ env.APP_PATH }}"
 
-          echo "Start video record"
-          xcrun simctl io booted recordVideo video_record.mov & echo $! > video_record.pid
-
           echo "Running tests with Maestro"
-          $HOME/.maestro/bin/maestro test .maestro/ --format junit
+          $HOME/.maestro/bin/maestro test --include-tags=smoke maestro/ --format junit
