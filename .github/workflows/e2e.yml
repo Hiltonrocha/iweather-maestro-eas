@@ -5,6 +5,8 @@ on:
     workflows: [CI]
     types:
       - completed
+env:
+  MAESTRO_VERSION: 1.39.13
 
 jobs:
   ios_e2e:
@@ -34,11 +36,11 @@ jobs:
       - name: Build app for simulator
         working-directory: ios
         env:
-          DERIVED_DATA_PATH: "ios/build/Build/Products/Release-iphonesimulator/iweather.app"
+          DERIVED_DATA_PATH: "build"
         run: |
           xcrun xcodebuild \
-            -scheme "Myapp" \
-            -workspace "Myapp.xcworkspace" \
+            -scheme "iweather" \
+            -workspace "iweather.xcworkspace" \
             -configuration "Release" \
             -sdk "iphonesimulator" \
             -destination "generic/platform=iOS Simulator" \
@@ -47,4 +49,20 @@ jobs:
           echo "Print path to *.app file"
           find "${{ env.DERIVED_DATA_PATH }}" -type d -name "*.app"
       # ^^^ Path to *.app file (based on derivedDataPath + working-directory):
-      # ./ios/my_build/Build/Products/Release-iphonesimulator/Myapp.app
+      - name: Run e2e tests
+        env:
+          APP_PATH:
+            "ios/build/Build/Products/Release-iphonesimulator/iweather.app"
+            # ^^^ change this path to your *.app file
+        run: |
+          echo "Launching iOS Simulator"
+          xcrun simctl boot "iPhone 14 Pro"
+
+          echo "Installing app on Simulator"
+          xcrun simctl install booted "${{ env.APP_PATH }}"
+
+          echo "Start video record"
+          xcrun simctl io booted recordVideo video_record.mov & echo $! > video_record.pid
+
+          echo "Running tests with Maestro"
+          $HOME/.maestro/bin/maestro test .maestro/ --format junit
