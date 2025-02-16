@@ -58,7 +58,7 @@ jobs:
           echo "List iOS Simulators available"
           xcrun simctl list devices
           echo "Launching iOS Simulator"
-          xcrun simctl boot "iPhone 16 Pro"
+          xcrun simctl boot "iPhone 15 Pro"
 
           echo "Installing app on Simulator"
           xcrun simctl install booted "${{ env.APP_PATH }}"
