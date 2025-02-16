@@ -55,6 +55,8 @@ jobs:
         env:
           APP_PATH: "ios/build/Build/Products/Release-iphonesimulator/iweather.app" # ^^^ change this path to your *.app file
         run: |
+          echo "List iOS Simulators available"
+          xcrun simctl list devices
           echo "Launching iOS Simulator"
           xcrun simctl boot "iPhone 16 Pro"
 
