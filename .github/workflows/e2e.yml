@@ -57,11 +57,31 @@ jobs:
         run: |
           echo "List iOS Simulators available"
           xcrun simctl list devices
+
           echo "Launching iOS Simulator"
           xcrun simctl boot "iPhone 15 Pro"
 
           echo "Installing app on Simulator"
           xcrun simctl install booted "${{ env.APP_PATH }}"
 
+          echo "List iOS Simulators available"
+          xcrun simctl list devices
+
+          echo "Start video record"
+          xcrun simctl io booted recordVideo video_record.mov & echo $! > video_record.pid
+
           echo "Running tests with Maestro"
           $HOME/.maestro/bin/maestro test --include-tags=smoke maestro/ --format junit
+
+      - name: Stop video record
+        if: always()
+        run: kill -SIGINT $(cat video_record.pid)
+
+      - name: Store video record
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e_ios_report
+          path: |
+            video_record.mov
+            report.xml
